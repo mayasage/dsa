@@ -1,0 +1,77 @@
+function Queue() {
+  if (!this) return new Queue();
+
+  this.queue = Object.create(null);
+  this.startIndex = null;
+  this.endIndex = null;
+
+  return this;
+}
+
+Queue.prototype.incrementEndIndex = function incrementEndIndex() {
+  if (this.endIndex === null) this.endIndex = 0;
+  else this.endIndex += 1;
+};
+
+Queue.prototype.incrementStartIndex = function incrementStartIndex() {
+  if (this.startIndex === null) this.startIndex = 0;
+  else this.startIndex += 1;
+  if (this.startIndex > this.endIndex) this.startIndex = this.endIndex;
+};
+
+Queue.prototype.isEmpty = function isEmpty() {
+  let empty = false;
+
+  if (this.startIndex === null) empty = true;
+  if (this.queue[this.startIndex] === undefined) empty = true;
+
+  return empty;
+};
+
+Queue.prototype.enqueue = function enqueue(val) {
+  this.incrementEndIndex();
+  this.queue[this.endIndex] = val;
+
+  if (!this.startIndex) this.startIndex = 0;
+};
+
+Queue.prototype.adjust = function adjust() {
+  const ZeroToStartIndex = this.startIndex - 0;
+  const startIndexToEndIndex = this.endIndex - this.startIndex;
+
+  if (
+    // eslint-disable-next-line operator-linebreak
+    this.endIndex > 2_000_000_000 &&
+    ZeroToStartIndex > startIndexToEndIndex
+  ) {
+    const values = Object.values(this.queue);
+
+    this.queue = Object.create(null);
+    for (let i = 0; i < values.length; i += 1) {
+      this.queue[i] = values[i];
+    }
+
+    if (values.length === 0) {
+      this.startIndex = null;
+      this.endIndex = null;
+    } else {
+      this.startIndex = 0;
+      this.endIndex = 0;
+    }
+  }
+};
+
+Queue.prototype.dequeue = function dequeue() {
+  if (this.isEmpty()) return undefined;
+
+  const val = this.queue[this.startIndex];
+  delete this.queue[this.startIndex];
+  this.incrementStartIndex();
+  this.adjust();
+
+  return val;
+};
+
+Queue.prototype.peek = function peek() {};
+
+export default Queue;
